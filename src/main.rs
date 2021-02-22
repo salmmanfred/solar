@@ -2,21 +2,12 @@ use web_view::*;
 use openfile;
 mod html;
 use std::time::Duration;
-#[derive(Clone)] 
-struct obj{
-    name: String,
-    x: f32,
-    y: f32,
-    mass: f32,
-    size:f32,
-    velx: f32,
-    vely: f32,
-    bounce: f32,
-}
-
+mod simloader;
+pub mod obj;
+use std::path::Path;
 
 fn main(){
-    let mut planet1: obj = obj{
+    let mut planet1: obj::obj = obj::obj{
         name: "planet1".to_string(),
         x: 500.0,
         y: 250.0,
@@ -28,7 +19,7 @@ fn main(){
 
     };
 
-    let mut planet2: obj = obj{
+    let mut planet2: obj::obj = obj::obj{
         name: "planet2".to_string(),
         x: 500.0,
         y: 50.0,
@@ -40,7 +31,7 @@ fn main(){
 
     };
     
-    let mut sun: obj = obj{
+    let mut sun: obj::obj = obj::obj{
         name: "sun".to_string(),
         x: 500.0,
         y: 450.0,
@@ -57,10 +48,10 @@ fn main(){
 
 
     let mut objs = vec!(planet1.clone(), sun.clone(),planet2.clone());
-
+    
     web_view::builder()
-        .title("Solar")
-        .content(Content::Html(openfile::readFile("src/html.html")))
+        .title("Solar|Alpha 1")
+        .content(Content::Html(htmlloader()))
         .size(1500, 950)
         .resizable(true)
         .debug(false)
@@ -77,7 +68,7 @@ fn main(){
 
                 }
                 "clear" =>{
-                    //let fobjs: Vec<obj> = Vec::new();
+                    //let fobjs: Vec<obj::obj> = Vec::new();
                     objs = Vec::new();
                 }
                 "cl" =>{
@@ -146,7 +137,7 @@ fn main(){
                         webview.eval("clear()").expect("error clear");
                     }
                     for x in 0..objs.clone().len(){
-                        webview.eval(&format!("createCir({},{},{})",objs[x].x,objs[x].y,objs[x].size));
+                        webview.eval(&format!("createCir({},{},{},'{}')",objs[x].x,objs[x].y,objs[x].size,objs[x].name));
 
                     }
 
@@ -159,35 +150,48 @@ fn main(){
                     
                     let newr = arg.split("||").collect::<Vec<&str>>();
                     let mut skip = false;
-                    for x in newr.clone(){
-                        if x == ""{
-                            skip = true;
+                    match newr[0]{
+                        "new" =>{
+                        for x in newr.clone(){
+                            if x == ""{
+                                skip = true;
+                            }
+                        }
+                        if !skip{
+                            let cusplan: obj::obj = obj::obj{
+                                name: "custom".to_string(),
+                                x: newr[1].parse::<f32>().expect("parse error") as f32,
+                                y: newr[2].parse::<f32>().expect("parse error") as f32,
+                                mass: newr[3].parse::<f32>().expect("parse error") as f32,
+                                size: newr[4].parse::<f32>().expect("parse error") as f32,
+                                velx: newr[5].parse::<f32>().expect("parse error") as f32,
+                                vely: newr[6].parse::<f32>().expect("parse error") as f32,
+                                bounce: newr[7].parse::<f32>().expect("parse error") as f32,
+                            };
+                            println!("cs: {}",cusplan.x);
+                            println!("cs: {}",cusplan.y);
+                            println!("cs: {}",cusplan.mass);
+                            println!("cs: {}",cusplan.size);
+                            println!("cs: {}",cusplan.velx);
+                            println!("cs: {}",cusplan.vely);
+
+                            println!("cs: {}",cusplan.bounce);
+
+
+                            objs.push(cusplan.clone());
+
                         }
                     }
-                    if !skip{
-                        let cusplan: obj = obj{
-                            name: "custom".to_string(),
-                            x: newr[0].parse::<f32>().expect("parse error") as f32,
-                            y: newr[1].parse::<f32>().expect("parse error") as f32,
-                            mass: newr[2].parse::<f32>().expect("parse error") as f32,
-                            size: newr[3].parse::<f32>().expect("parse error") as f32,
-                            velx: newr[4].parse::<f32>().expect("parse error") as f32,
-                            vely: newr[5].parse::<f32>().expect("parse error") as f32,
-                            bounce: newr[6].parse::<f32>().expect("parse error") as f32,
-                        };
-                        println!("cs: {}",cusplan.x);
-                        println!("cs: {}",cusplan.y);
-                        println!("cs: {}",cusplan.mass);
-                        println!("cs: {}",cusplan.size);
-                        println!("cs: {}",cusplan.velx);
-                        println!("cs: {}",cusplan.vely);
-
-                        println!("cs: {}",cusplan.bounce);
-
-
-                        objs.push(cusplan.clone());
-
+                    "loadsim" =>{
+                        let newplan = simloader::loadsim(newr[1]);
+                        objs = newplan;
                     }
+                    _ =>{
+                        println!("not a thing");
+                    }
+                }
+                
+                    
                    //println!("{}",objs[0].x);
 
 
@@ -201,7 +205,7 @@ fn main(){
      
 }
 
-fn gravity(fi:obj,fii:obj) -> Vec<f32>{
+fn gravity(fi:obj::obj,fii:obj::obj) -> Vec<f32>{
     let mut ax = 0.0;
     let mut ay = 0.0;
 
@@ -218,6 +222,17 @@ fn gravity(fi:obj,fii:obj) -> Vec<f32>{
 
     let newcord = vec!(ax,ay);
     return newcord;
+}
+fn htmlloader() -> String{
+    if Path::new("./src/html.html").exists(){
+        println!("From html file");
+        return openfile::readFile("src/html.html");
+
+    }else{
+        println!("From compiled");
+        return html::mm.to_string();
+    }
+
 }
 
 

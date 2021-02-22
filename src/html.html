@@ -35,9 +35,17 @@
         border: 1px solid gray;
         margin-top: 5px;
     }
+    .outer .below2 {
+        z-index: 3;
+        width: 400px;
+        height: 200px;
+        border: 1px solid gray;
+        margin-top: 5px;
+
+    }
 
     .outer .start {
-        z-index: 3;
+        z-index: 4;
         width: 100%;
         margin-top: 5px;
         border: 2px solid black;
@@ -75,6 +83,7 @@
         Your browser does not support the HTML canvas tag.</canvas>
     <div class="outer">
         <div class="top">
+            Add custom planet: <br>
             X: <input type="number" id="x">
             Y: <input type="number" id="y"><br>
             Mass: <input type="number" id="mass"><br>
@@ -93,8 +102,19 @@
         <div class="below">
             Settings:<br>
 
-            <input type="button" value="clear" onclick="external.invoke('clear')">
+            <input type="button" value="clear" onclick="external.invoke('clear')"><br>
+            <input type="button" value="Text on" id="tc" onclick="notext()"><br>
             <input id="cl" type="button" value="Dont clear" onclick="external.invoke('cl')">
+
+
+
+        </div>
+        <div class="below2">
+            Load custom solar simulation: <br>
+            <input type="text" value="file" id="filename">
+            <br>
+
+            <input type="button" value="Load Simulation" onclick="loadsim()">
 
 
 
@@ -121,6 +141,7 @@
         var ctx = c.getContext("2d");
         var on = true
         list = [];
+        rendtext = true;
         function start() {
             if (on) {
                 setInterval(function core() {
@@ -133,10 +154,23 @@
             }
 
         }
-        function createCir(x, y, sx) {
+        
+        function createCir(x, y, sx,name) {
             ctx.beginPath();
             ctx.arc(x, y, sx, 0, 2 * Math.PI);
             ctx.stroke();
+            if (rendtext){
+                fs = sx/2;
+                if (sx <= 40){
+                    ctx.textAlign = "center";
+                    ctx.font = sx*2+"px Arial";
+                    ctx.fillText(name, x, y-sx*2); 
+                }else{
+                    ctx.textAlign = "center";
+                    ctx.font = fs+"px Arial";
+                    ctx.fillText(name, x, y); 
+                }
+            }
         }
         function clear() {
             ctx.clearRect(0, 0, 1000, 900);
@@ -150,7 +184,7 @@
             var size = document.getElementById("size").value;
             var bounce = document.getElementById("bounce").value;
 
-            external.invoke(x.toString() + "||" + y.toString() + "||" + mass.toString() + "||" + size.toString() + "||" + vx.toString() + "||" + vy.toString() + "||" + bounce.toString());
+            external.invoke("new||"+x.toString() + "||" + y.toString() + "||" + mass.toString() + "||" + size.toString() + "||" + vx.toString() + "||" + vy.toString() + "||" + bounce.toString());
 
 
         }
@@ -164,6 +198,7 @@
 
 
         }
+        
 
         function clears(name) {
             var i;
@@ -176,6 +211,9 @@
 
 
         }
+        
+        
+        
         function upbutcl(bool) {
             if (bool != "true") {
                 document.getElementById("cl").value = "Clear";
@@ -185,6 +223,24 @@
 
             }
         }
+        function loadsim (){
+            var filename = document.getElementById("filename").value;
+         
+            
+            external.invoke("loadsim||"+filename);
+        }
+        function notext(){
+            rendtext = !rendtext;
+            if (rendtext != true) {
+                document.getElementById("tc").value = "Text on";
+
+            } else {
+                document.getElementById("tc").value = "Text off";
+
+            }
+        }
+
+        
 
     </script>
 
