@@ -7,31 +7,32 @@ pub mod obj;
 use std::path::Path;
 
 fn main(){
-    let mut planet1: obj::obj = obj::obj{
+    let mut grc = 0.00002;
+    let planet1: obj::obj = obj::obj{
         name: "planet1".to_string(),
         x: 500.0,
         y: 250.0,
         mass: 1.0,
         size: 10.0,
-        velx: 2.1,
+        velx: 3.1,
         vely: 0.0,
         bounce: 1.1,
 
     };
 
-    let mut planet2: obj::obj = obj::obj{
+    let planet2: obj::obj = obj::obj{
         name: "planet2".to_string(),
         x: 500.0,
         y: 50.0,
-        mass: 1.0,
+        mass: 10.0,
         size: 10.0,
-        velx: 1.5,
+        velx: 4.0,
         vely: 0.0,
         bounce: 1.1,
 
     };
     
-    let mut sun: obj::obj = obj::obj{
+    let sun: obj::obj = obj::obj{
         name: "sun".to_string(),
         x: 500.0,
         y: 450.0,
@@ -50,9 +51,9 @@ fn main(){
     let mut objs = vec!(planet1.clone(), sun.clone(),planet2.clone());
     
     web_view::builder()
-        .title("Solar|Alpha 1")
+        .title("Solar|Alpha 2")
         .content(Content::Html(htmlloader()))
-        .size(1500, 950)
+        .size(1400, 900)
         .resizable(true)
         .debug(false)
         .user_data(())
@@ -101,7 +102,7 @@ fn main(){
                             //println!("FFFFFFFFFFFFFFFFFx{} y{}",xx,o);
 
                             if xx != o{
-                                let modif = gravity(objs[o].clone(), objs[xx].clone());
+                                let modif = gravity(objs[o].clone(), objs[xx].clone(),grc);
                                 objs[o].velx -= modif[0];
                                 objs[o].vely -= modif[1];
 
@@ -183,8 +184,11 @@ fn main(){
                         }
                     }
                     "loadsim" =>{
-                        let newplan = simloader::loadsim(newr[1]);
+                        let newplan = simloader::loadsim(&format!("{}.solsim",newr[1]));
                         objs = newplan;
+                    }
+                    "gc" =>{
+                        grc = newr[1].parse::<f32>().expect("parse error") as f32;
                     }
                     _ =>{
                         println!("not a thing");
@@ -205,19 +209,20 @@ fn main(){
      
 }
 
-fn gravity(fi:obj::obj,fii:obj::obj) -> Vec<f32>{
+fn gravity(fi:obj::obj,fii:obj::obj,gravconst: f32) -> Vec<f32>{
     let mut ax = 0.0;
     let mut ay = 0.0;
 
     let dy = fi.y - fii.y;
     let dx = fi.x - fii.y;
     let dsq = dx * dx + dy * dy;
-    let dr = dsq.sqrt();
+    //let dr = dsq.sqrt();
+    let distance =  ( dx*dx + dy*dy ).sqrt();
 
-    //if dsq > 5.0 {
-        let force = 0.02 * ((fi.mass * fii.mass) / dsq);
-        ax += force * (dx / dr)/fi.mass;
-        ay += force * (dy / dr)/fi.mass;
+   // if dsq > 3.0 {
+        let force = gravconst * ((fi.mass * fii.mass) / distance.sqrt());
+        ax += force * dx / distance / fi.mass;
+        ay += force * dy / distance / fi.mass;
     //}
 
     let newcord = vec!(ax,ay);
