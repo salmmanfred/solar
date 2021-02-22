@@ -1,10 +1,5 @@
 use web_view::*;
 use openfile;
-use attohttpc;
-use serde_json::*;
-use std::path::Path;
-use std::thread;
-use std::fs;
 mod html;
 use std::time::Duration;
 #[derive(Clone)] 

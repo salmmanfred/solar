@@ -9,5 +9,3 @@ edition = "2018"
 [dependencies]
 web-view = "0.7.2"
 openfile = "1.1.0"
-attohttpc = { version = "0.16.1", features = ["json", "form"] }
-serde_json = "1.0.62"
