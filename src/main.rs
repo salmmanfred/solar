@@ -5,7 +5,7 @@ use std::time::Duration;
 mod simloader;
 pub mod obj;
 use std::path::Path;
-
+pub mod errorwin;
 fn main(){
     let mut grc = 0.00002;
     let planet1: obj::obj = obj::obj{
@@ -160,7 +160,7 @@ fn main(){
                         }
                         if !skip{
                             let cusplan: obj::obj = obj::obj{
-                                name: "custom".to_string(),
+                                name: newr[8].to_string(),
                                 x: newr[1].parse::<f32>().expect("parse error") as f32,
                                 y: newr[2].parse::<f32>().expect("parse error") as f32,
                                 mass: newr[3].parse::<f32>().expect("parse error") as f32,

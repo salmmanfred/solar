@@ -13,6 +13,7 @@ pub const mm: &str = r#"
         grid-template: 1fr / 1fr;
         place-items: center;
         float: right;
+        width: 25%;
     }
 
     .outer>* {
@@ -22,7 +23,8 @@ pub const mm: &str = r#"
 
     .outer .below {
         z-index: 2;
-        width: 400px;
+        width: 100%;
+
         height: 200px;
         border: 1px solid gray;
         margin-top: 5px;
@@ -31,14 +33,17 @@ pub const mm: &str = r#"
 
     .outer .top {
         z-index: 1;
-        width: 400px;
-        height: 200px;
+        width: 100%;
+
+        height: 220px;
         border: 1px solid gray;
         margin-top: 5px;
     }
     .outer .below2 {
         z-index: 3;
-        width: 400px;
+       
+        width: 100%;
+
         height: 200px;
         border: 1px solid gray;
         margin-top: 5px;
@@ -57,7 +62,8 @@ pub const mm: &str = r#"
         position: absolute;
 
         float: right;
-        width: 400px;
+               width: 100%;
+
         height: 200px;
         border: 1px solid gray;
     }
@@ -66,7 +72,8 @@ pub const mm: &str = r#"
         margin-top: 400px;
         position: absolute;
         float: right;
-        width: 400px;
+               width: 100%;
+
         height: 200px;
         border: 1px solid gray;
     }
@@ -80,11 +87,12 @@ pub const mm: &str = r#"
 <body>
     <h1 id="talk"></h1>
 
-    <canvas id="myCanvas" width="1000" height="900" style="border:1px solid #d3d3d3;">
+    <canvas id="myCanvas" width="75%" height="100%" style="border:1px solid #d3d3d3;">
         Your browser does not support the HTML canvas tag.</canvas>
     <div class="outer">
         <div class="top">
-            Add custom planet: <br>
+            Add custom object: <br>
+            Name: <input type="text" id="name"><br>
             X: <input type="number" id="x">
             Y: <input type="number" id="y"><br>
             Mass: <input type="number" id="mass"><br>
@@ -93,9 +101,7 @@ pub const mm: &str = r#"
             Velocity Y: <input type="number" id="vy"><br>
             Bounce: <input type="number" id="bounce"><br>
 
-
-
-            <br>
+            
             <input type="button" value="Push new" onclick="addnew()">
 
         </div>
@@ -103,8 +109,12 @@ pub const mm: &str = r#"
         <div class="below">
             Settings:<br>
 
-            <input type="button" value="clear" onclick="external.invoke('clear')"><br>
-            <input type="button" value="Text on" id="tc" onclick="notext()"><br>
+            <input type="button" value="Clear Objects" onclick="external.invoke('clear')"><br>
+            <input type="button" value="Text off" id="tc" onclick="notext()"><br>
+            Update Freq: <input type="number" id="speed" value="10"><br>
+            Gravity Constant: <input type="number" id="gc" value="0.00002">
+            <input type="button" value="Submit"  onclick="grv()"><br>
+
             <input id="cl" type="button" value="Dont clear" onclick="external.invoke('cl')">
 
 
@@ -143,11 +153,29 @@ pub const mm: &str = r#"
         var on = true
         list = [];
         rendtext = true;
+        xsize = window.innerWidth*0.72;
+        ysize = window.innerWidth*0.95;
+
+
+        window.addEventListener('resize', resizeCanvas, false);
+
+        function resizeCanvas() {
+                c.width = window.innerWidth*0.72;
+                c.height = window.innerHeight*0.95;
+
+                /**
+                 * Your drawings need to be inside this function otherwise they will be reset when 
+                 * you resize the browser window and the canvas goes will be cleared.
+                 */
+                
+        }
+        resizeCanvas();
+
         function start() {
             if (on) {
                 setInterval(function core() {
                     external.invoke('run');
-                }, 10);
+                }, parseInt(document.getElementById("speed").value));
                 /*setInterval(function lis() {
                     external.invoke('list');
                 }, 100);
@@ -174,7 +202,7 @@ pub const mm: &str = r#"
             }
         }
         function clear() {
-            ctx.clearRect(0, 0, 1000, 900);
+            ctx.clearRect(0, 0, xsize, ysize);
         }
         function addnew() {
             var x = document.getElementById("x").value;
@@ -184,8 +212,18 @@ pub const mm: &str = r#"
             var mass = document.getElementById("mass").value;
             var size = document.getElementById("size").value;
             var bounce = document.getElementById("bounce").value;
+            var name = document.getElementById("name").value;
 
-            external.invoke("new||"+x.toString() + "||" + y.toString() + "||" + mass.toString() + "||" + size.toString() + "||" + vx.toString() + "||" + vy.toString() + "||" + bounce.toString());
+
+            external.invoke("new||"+x.toString() + "||" + y.toString() + "||" + mass.toString() + "||" + size.toString() + "||" + vx.toString() + "||" + vy.toString() + "||" + bounce.toString()+"||"+name.toString());
+
+
+        }
+        function grv() {
+            var x = document.getElementById("gc").value;
+            
+
+            external.invoke("gc||"+x);
 
 
         }
@@ -247,5 +285,34 @@ pub const mm: &str = r#"
 
 </body>
 
+</html>voke("loadsim||"+filename);
+        }
+        function notext(){
+            rendtext = !rendtext;
+            if (rendtext != true) {
+                document.getElementById("tc").value = "Text on";
+
+            } else {
+                document.getElementById("tc").value = "Text off";
+
+            }
+        }
+
+        
+
+    </script>
+
+</body>
+
+</html>
+"#;
+pub const erh: &str = r#"
+<html>
+    <body>
+
+        There has been an error
+        <input class="but" type="button" value="Close" onclick="external.invoke('exit')">
+
+    </body>
 </html>
 "#;
