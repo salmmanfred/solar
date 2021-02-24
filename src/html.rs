@@ -1,3 +1,5 @@
+// storing all the html files so they are compiled with the program
+
 pub const mm: &str = r#"
 <!DOCTYPE html>
 <html>
@@ -148,31 +150,36 @@ pub const mm: &str = r#"
 
 
     <script>
+        //This is the frontend
+        // Here it gets the canvas and then get the 2d element of it 
+
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
+        // variable to make sure only one loop is started
         var on = true
         list = [];
+        // if the text on the planets should be renderd
         rendtext = true;
-        xsize = window.innerWidth*0.72;
-        ysize = window.innerWidth*0.95;
+       /* xsize = window.innerWidth*0.72;
+        ysize = window.innerWidth*0.95;*/
 
 
         window.addEventListener('resize', resizeCanvas, false);
 
         function resizeCanvas() {
-                c.width = window.innerWidth*0.72;
-                c.height = window.innerHeight*0.95;
-
-                /**
-                 * Your drawings need to be inside this function otherwise they will be reset when 
-                 * you resize the browser window and the canvas goes will be cleared.
-                 */
+                // makes sure the screen is the correct size and the clear area is correct
+                xsize = window.innerWidth*0.72;
+                ysize = window.innerWidth*0.95;
+                c.width = xsize;
+                c.height = ysize;
+                
                 
         }
         resizeCanvas();
 
         function start() {
             if (on) {
+                // starts the loop which start the program  
                 setInterval(function core() {
                     external.invoke('run');
                 }, parseInt(document.getElementById("speed").value));
@@ -185,6 +192,7 @@ pub const mm: &str = r#"
         }
         
         function createCir(x, y, sx,name) {
+            // "render" function its function is to render a circle on to the screen
             ctx.beginPath();
             ctx.arc(x, y, sx, 0, 2 * Math.PI);
             ctx.stroke();
@@ -202,6 +210,7 @@ pub const mm: &str = r#"
             }
         }
         function clear() {
+            //Clears the screen
             ctx.clearRect(0, 0, xsize, ysize);
         }
         function addnew() {
@@ -214,12 +223,13 @@ pub const mm: &str = r#"
             var bounce = document.getElementById("bounce").value;
             var name = document.getElementById("name").value;
 
-
+            // Gets all the values and invokes them to the rust side where they are processed into a new obj
             external.invoke("new||"+x.toString() + "||" + y.toString() + "||" + mass.toString() + "||" + size.toString() + "||" + vx.toString() + "||" + vy.toString() + "||" + bounce.toString()+"||"+name.toString());
 
 
         }
         function grv() {
+            //gets the gravity when you submit it
             var x = document.getElementById("gc").value;
             
 
@@ -254,6 +264,7 @@ pub const mm: &str = r#"
         
         
         function upbutcl(bool) {
+            // makes sure the button id="cl" is showing the correct text
             if (bool != "true") {
                 document.getElementById("cl").value = "Clear";
 
@@ -263,31 +274,14 @@ pub const mm: &str = r#"
             }
         }
         function loadsim (){
+            //gets the file name of the file you want to load for a sim
             var filename = document.getElementById("filename").value;
          
             
             external.invoke("loadsim||"+filename);
         }
         function notext(){
-            rendtext = !rendtext;
-            if (rendtext != true) {
-                document.getElementById("tc").value = "Text on";
-
-            } else {
-                document.getElementById("tc").value = "Text off";
-
-            }
-        }
-
-        
-
-    </script>
-
-</body>
-
-</html>voke("loadsim||"+filename);
-        }
-        function notext(){
+            // same as upbutcl()
             rendtext = !rendtext;
             if (rendtext != true) {
                 document.getElementById("tc").value = "Text on";

@@ -1,7 +1,7 @@
 use crate::html;
 use std::path::Path;
 use web_view::*;
-
+// a simple window for errors
 pub fn error(){
         web_view::builder()
             .title("Error")

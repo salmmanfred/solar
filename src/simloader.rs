@@ -1,13 +1,17 @@
 use openfile;
 use crate::obj;
 use crate::errorwin;
+// this the the function that loads the simulations from file
 pub fn loadsim(file:&str) -> Vec<obj::obj>{
     let mut returndata: Vec<obj::obj> = Vec::new();
     let filecontent = openfile::readFileLines(file);
     
     for x in filecontent{
+        // parse all the lines
         let data = x.split("||").collect::<Vec<&str>>();
         if data.len() == 8{
+            // ^ makes sure its all 8 values
+            // then creates the function
             let loadsimplan: obj::obj = obj::obj{
                 name: data[0].to_string(),
                 x:  data[1].parse::<f32>().expect("parse error") as f32,
@@ -26,6 +30,7 @@ pub fn loadsim(file:&str) -> Vec<obj::obj>{
         }
 
     }
+    // returns the new vector
     
     return returndata;
 }

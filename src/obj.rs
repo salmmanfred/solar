@@ -1,3 +1,4 @@
+// this is the obj which is used by everything
 #[derive(Clone)] 
 pub struct obj{
     pub name: String,
