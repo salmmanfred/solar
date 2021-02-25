@@ -15,10 +15,10 @@ If you type in what you want in the boxes below and then press:  Push new the ne
 ## Step 2:  
     Now its time for you to add planets and a sun in the file  
     Here is a simple example:  
-    ```
+    ___________
     custom||450||500||10000000||90||0||0||1.1  
     custom||450||100||10||10||20||0||1.1  
-    ```  
+    ___________
     The first item in the list is the name in this case custom.  
     Each entry(row) goes as following:  
     NAME||X|| Y|| MASS|| SIZE|| VELOCITY X|| VELOCITY Y|| BOUNCE

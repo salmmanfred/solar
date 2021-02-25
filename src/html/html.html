@@ -3,6 +3,7 @@
 <style>
     body {
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  
     }
 
 
@@ -43,7 +44,7 @@
        
         width: 100%;
 
-        height: 200px;
+        height: 70px;
         border: 1px solid gray;
         margin-top: 5px;
 
@@ -81,12 +82,21 @@
         width: 100%;
 
     }
+    .wid100{
+        width: 100px;
+      
+    }
+    .wid200{
+        width: 23%;
+        
+    }
+    
 </style>
 
 <body>
     <h1 id="talk"></h1>
 
-    <canvas id="myCanvas" width="75%" height="100%" style="border:1px solid #d3d3d3;">
+    <canvas id="myCanvas" width="75%" height="100%" style="border:1px solid #d3d3d3; background-color: white;">
         Your browser does not support the HTML canvas tag.</canvas>
     <div class="outer">
         <div class="top">
@@ -119,6 +129,13 @@
 
 
         </div>
+        <div class="below" id="list">
+            List of objects:
+    
+            <!--<input type="button" value="clear" onclick="external.invoke('clear')">-->
+    
+    
+        </div>
         <div class="below2">
             Load custom solar simulation: <br>
             <input type="text" value="file" id="filename">
@@ -130,16 +147,12 @@
 
         </div>
         <input type="button" value="Start" onclick="external.invoke('start')" class="start">
+        <input type="button" value="Pause" onclick="external.invoke('pause')" class="start">
+
 
     </div>
 
-    <!--<div class="inb" id="list">
-        list:
-
-        <input type="button" value="clear" onclick="external.invoke('clear')">
-
-
-    </div>-->
+    
 
 
 
@@ -173,6 +186,7 @@
                 
         }
         resizeCanvas();
+        external.invoke('run');
 
         function start() {
             if (on) {
@@ -182,8 +196,11 @@
                 }, parseInt(document.getElementById("speed").value));
                 /*setInterval(function lis() {
                     external.invoke('list');
+                }, 100);*/
+                on = false;
+                setInterval(function core() {
+                    external.invoke('list');
                 }, 100);
-                on = false;*/
             }
 
         }
@@ -238,22 +255,29 @@
         function addlist(name, x, y) {
 
             para = document.createElement("div");
-            para.innerText = "" + name + " x: " + x + "y: " + y;
-            para.id = name;
+            parax = document.createElement("a");
+            paray = document.createElement("a");
+
+            para.innerText = "" + name +": "
+            parax.innerText = "X:" + x+ " "
+            paray.innerText = "Y:" + y + " "
+           
+         
+
+            // + " X: " + x + " Y: " + y;
+            para.id = "del";
+            para.appendChild(parax).appendChild(paray)
             document.getElementById("list").appendChild(para)
 
 
         }
         
 
-        function clears(name) {
-            var i;
-            if (name == '') {
-                //document.getElementById("list").removeChild(getElementById(name));
-            } else {
-                document.getElementById(name).remove()
+        function clears() {
+           
+                document.getElementById("list").removeChild(document.getElementById("del"))
 
-            }
+            
 
 
         }
@@ -276,6 +300,8 @@
          
             
             external.invoke("loadsim||"+filename);
+            external.invoke('run');
+
         }
         function notext(){
             // same as upbutcl()

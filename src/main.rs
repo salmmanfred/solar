@@ -8,7 +8,11 @@ use std::path::Path;
 pub mod errorwin;
 fn main(){
     // declares the gravity constant
-    let mut grc = 0.00002;
+    let mut grc = 0.03;
+    let html: html::html = html::html{
+        html: "./src/html/html.html".to_string(),
+        im: html::mm.to_string(),
+    };
     // declares some test planets
     let planet1: obj::obj = obj::obj{
         name: "planet1".to_string(),
@@ -16,21 +20,22 @@ fn main(){
         y: 250.0,
         mass: 1.0,
         size: 10.0,
-        velx: 3.1,
+        velx: 3.3,
         vely: 0.0,
         bounce: 1.1,
-
+      
     };
 
     let planet2: obj::obj = obj::obj{
         name: "planet2".to_string(),
         x: 500.0,
         y: 50.0,
-        mass: 10.0,
+        mass: 100.0,
         size: 10.0,
-        velx: 4.0,
+        velx: 1.2,
         vely: 0.0,
         bounce: 1.1,
+      
 
     };
     
@@ -43,8 +48,9 @@ fn main(){
         velx: 0.0,
         vely: 0.0,
         bounce: 1.1,
-
+      
     };
+    let mut pause = false;
     let mut first = true;
     // ties with the display text bool on the other side
     let mut cl = true;
@@ -55,7 +61,7 @@ fn main(){
     web_view::builder()
     // creates a window
         .title("Solar|Alpha 2")
-        .content(Content::Html(htmlloader()))
+        .content(Content::Html(html.html()))
         .size(1400, 900)
         .resizable(true)
         .debug(false)
@@ -68,6 +74,7 @@ fn main(){
                 }
                 // for starting the loop
                 "start" =>{
+                    pause = false;
                     println!("Start");
                     webview.eval("start()").expect("start error");
 
@@ -84,24 +91,29 @@ fn main(){
                     
                 }
                 "list" =>{
-                    /*
-                    if !first{
-                        for x in objs.iter(){
-                            webview.eval(&format!("clears('{}')",x.name))?;
-                        }
-                    }
+                    
+                   if !first{
                     for x in objs.iter(){
-                    println!("addlist('{}',{},{})",x.name,x.x,x.y);
-
-                        webview.eval(&format!("addlist('{}',{},{})",x.name,x.x,x.y)).expect("list error");
+                        webview.eval(&format!("clears()"))?;
                     }
-                    first = false;*/
+                     }
+                        for x in objs.iter(){
+                        println!("addlist('{}',{:.3},{:.3})",x.name,x.x,x.y);
+
+                            webview.eval(&format!("addlist('{}',{:.3},{:.3})",x.name,x.x,x.y)).expect("list error");
+                        }
+                    
+                    first = false;
+                }
+                "pause"=>{
+                    pause = true;
                 }
                 // this is where the loop on the js side invokes too
                 "run" =>{
                     //thread::sleep(Duration::from_millis(10));
                     //println!("xzczczxcxzczczxcxzcxz!{} y!{}",objs[0].x,objs[1].x);
                     // main for loop
+                    if pause != true{
                     for o in 0..objs.len(){
                         // secondary for loop
                         for xx in 0..objs.len(){
@@ -109,16 +121,21 @@ fn main(){
                             // makes sure its not calcuating in its own gravity
                             if xx != o{
                                 // calls the gravity function
-                                let modif = gravity(&objs[o], &objs[xx],grc);
+                                //let modif = gravity(&objs[o], &objs[xx],grc);
                                 // applies the acceleration to the velocity
-                                objs[o].velx -= modif[0];
-                                objs[o].vely -= modif[1];
-                                // adds the velocity to the x and y axis
-                                objs[o].x += objs[o].velx;
-                                objs[o].y += objs[o].vely;
-                                // calculating distance
-                                let dx = objs[o].x - objs[xx].x;
-                                let dy = objs[o].y - objs[xx].y;
+                                
+                                //let modif = gravity(&objs[o], &objs[xx], grc);
+                                let xf = &objs[xx].clone();
+                                objs[o].gravity(xf, grc);
+
+                                /*objs[o].velx -= modif[0];
+                                objs[o].vely -= modif[1];*/
+                                
+                                   // prints out some usefull information
+                                println!("Acceleration: xvel: {} yvel: {}| Position: x: {} y: {} Rendering Queue Number(RQN): {} Name: {} ",
+                                0,0,objs[o].x,objs[o].y,o,objs[o].name);
+                                let dx = (objs[o].x + objs[o].velx) - (objs[xx].x + objs[xx].velx);
+                                let dy = (objs[o].y + objs[o].vely) - (objs[xx].y + objs[xx].vely);
                                 let distance = (dx * dx + dy * dy).sqrt();
                                 // makes sure 2 objs are not overlapping
                                 if distance <= objs[o].size + objs[xx].size {
@@ -130,11 +147,7 @@ fn main(){
                                     //println!("cccccccccccccccccccccccccccccccccccclos");
                                     //thread::sleep(Duration::from_millis(1000));
                                     
-                                   }
-                                   // prints out some usefull information
-                                println!("Acceleration: xvel: {} yvel: {}| Position: x: {} y: {} Rendering Queue Number(RQN): {} Name: {}",
-                                modif[0],modif[1],objs[o].x,objs[o].y,o,objs[o].name);
-
+                                }
                             }
 
 
@@ -144,6 +157,24 @@ fn main(){
                     //    println!("x!{} y!{} m!{}",objs[1].x,objs[1].y,objs[1].mass);
 
 
+                    }
+                    /*
+                    for xx in 0..objs.len(){
+                            if xx == o{
+                    */
+                    for o in 0..objs.len(){
+                        
+                                // adds the velocity to the x and y axis
+                            
+                                
+                                /*objs[o].x += objs[o].velx;
+                                objs[o].y += objs[o].vely;*/
+                                objs[o].updatePosition();
+                                // calculating distance
+                                    
+                            
+                        
+                    }
                     }
                     // clears the screen
                     if cl{
@@ -177,13 +208,14 @@ fn main(){
                             // creates a new planet
                             let cusplan: obj::obj = obj::obj{
                                 name: newr[8].to_string(),
-                                x: newr[1].parse::<f32>().expect("parse error") as f32,
-                                y: newr[2].parse::<f32>().expect("parse error") as f32,
-                                mass: newr[3].parse::<f32>().expect("parse error") as f32,
-                                size: newr[4].parse::<f32>().expect("parse error") as f32,
-                                velx: newr[5].parse::<f32>().expect("parse error") as f32,
-                                vely: newr[6].parse::<f32>().expect("parse error") as f32,
-                                bounce: newr[7].parse::<f32>().expect("parse error") as f32,
+                                x: newr[1].parse::<f64>().expect("parse error") as f64,
+                                y: newr[2].parse::<f64>().expect("parse error") as f64,
+                                mass: newr[3].parse::<f64>().expect("parse error") as f64,
+                                size: newr[4].parse::<f64>().expect("parse error") as f64,
+                                velx: newr[5].parse::<f64>().expect("parse error") as f64,
+                                vely: newr[6].parse::<f64>().expect("parse error") as f64,
+                                bounce: newr[7].parse::<f64>().expect("parse error") as f64,
+                             
                             };
                             // prints out all the information
                             println!("cs: {}",cusplan.x);
@@ -207,7 +239,7 @@ fn main(){
                     }
                     // change the gravity constant
                     "gc" =>{
-                        grc = newr[1].parse::<f32>().expect("parse error") as f32;
+                        grc = newr[1].parse::<f64>().expect("parse error") as f64;
                     }
                     // makes so that the js side can print
                     "log" =>{
@@ -234,39 +266,24 @@ fn main(){
      
 }
 
-fn gravity(fi: &obj::obj,fii:&obj::obj,gravconst: f32) -> Vec<f32>{
-    // gravity alg
-    let mut ax = 0.0;
-    let mut ay = 0.0;
 
-    let dy = fi.y - fii.y;
-    let dx = fi.x - fii.y;
-    //let dsq = dx * dx + dy * dy;
-    //let dr = dsq.sqrt();
-    let distance =  ( dx*dx + dy*dy ).sqrt();
+/*fn gravity(fi: &obj::obj,fii:&obj::obj,gravconst: f64) -> Vec<f64>{
+    return fi.to_owned().gravity(fii, gravconst);
+}*/
 
-   // if dsq > 3.0 {
-        let force = gravconst * ((fi.mass * fii.mass) / distance.sqrt());
-        ax += force * dx / distance / fi.mass;
-        ay += force * dy / distance / fi.mass;
-    //}
 
-    let newcord = vec!(ax,ay);
-    return newcord;
-}
+
 fn htmlloader() -> String{
     // this is a function that loads either the html or from the compiled aka from html.rs 
     // if however html.html exists in the src folder then it opens that instead
-    if Path::new("./src/html.html").exists(){
+    if Path::new("./src/html/html.html").exists(){
         println!("From html file");
-        return openfile::readFile("src/html.html");
+        return openfile::readFile("src/html/html.html");
 
     }else{
         println!("From compiled");
         return html::mm.to_string();
     }
 
+
 }
-
-
-

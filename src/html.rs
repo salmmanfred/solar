@@ -1,4 +1,24 @@
 // storing all the html files so they are compiled with the program
+use std::path::Path;
+
+#[derive(Clone)] 
+pub struct html{
+    pub html: String,
+    pub im: String,
+}
+impl html{
+    pub fn html(&self) -> String{
+        if Path::new(&self.html).exists(){
+            println!("From html file");
+            return openfile::readFile(&self.html);
+    
+        }else{
+            println!("From compiled");
+            return self.im.clone();
+        }
+    }
+}
+
 
 pub const mm: &str = r#"
 <!DOCTYPE html>
@@ -6,6 +26,7 @@ pub const mm: &str = r#"
 <style>
     body {
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  
     }
 
 
@@ -46,7 +67,7 @@ pub const mm: &str = r#"
        
         width: 100%;
 
-        height: 200px;
+        height: 70px;
         border: 1px solid gray;
         margin-top: 5px;
 
@@ -84,12 +105,21 @@ pub const mm: &str = r#"
         width: 100%;
 
     }
+    .wid100{
+        width: 100px;
+      
+    }
+    .wid200{
+        width: 23%;
+        
+    }
+    
 </style>
 
 <body>
     <h1 id="talk"></h1>
 
-    <canvas id="myCanvas" width="75%" height="100%" style="border:1px solid #d3d3d3;">
+    <canvas id="myCanvas" width="75%" height="100%" style="border:1px solid #d3d3d3; background-color: white;">
         Your browser does not support the HTML canvas tag.</canvas>
     <div class="outer">
         <div class="top">
@@ -122,6 +152,13 @@ pub const mm: &str = r#"
 
 
         </div>
+        <div class="below" id="list">
+            List of objects:
+    
+            <!--<input type="button" value="clear" onclick="external.invoke('clear')">-->
+    
+    
+        </div>
         <div class="below2">
             Load custom solar simulation: <br>
             <input type="text" value="file" id="filename">
@@ -133,16 +170,12 @@ pub const mm: &str = r#"
 
         </div>
         <input type="button" value="Start" onclick="external.invoke('start')" class="start">
+        <input type="button" value="Pause" onclick="external.invoke('pause')" class="start">
+
 
     </div>
 
-    <!--<div class="inb" id="list">
-        list:
-
-        <input type="button" value="clear" onclick="external.invoke('clear')">
-
-
-    </div>-->
+    
 
 
 
@@ -169,13 +202,14 @@ pub const mm: &str = r#"
         function resizeCanvas() {
                 // makes sure the screen is the correct size and the clear area is correct
                 xsize = window.innerWidth*0.72;
-                ysize = window.innerWidth*0.95;
+                ysize = window.innerHeight*0.95;
                 c.width = xsize;
                 c.height = ysize;
                 
                 
         }
         resizeCanvas();
+        external.invoke('run');
 
         function start() {
             if (on) {
@@ -185,8 +219,11 @@ pub const mm: &str = r#"
                 }, parseInt(document.getElementById("speed").value));
                 /*setInterval(function lis() {
                     external.invoke('list');
+                }, 100);*/
+                on = false;
+                setInterval(function core() {
+                    external.invoke('list');
                 }, 100);
-                on = false;*/
             }
 
         }
@@ -241,22 +278,29 @@ pub const mm: &str = r#"
         function addlist(name, x, y) {
 
             para = document.createElement("div");
-            para.innerText = "" + name + " x: " + x + "y: " + y;
-            para.id = name;
+            parax = document.createElement("a");
+            paray = document.createElement("a");
+
+            para.innerText = "" + name +": "
+            parax.innerText = "X:" + x+ " "
+            paray.innerText = "Y:" + y + " "
+           
+         
+
+            // + " X: " + x + " Y: " + y;
+            para.id = "del";
+            para.appendChild(parax).appendChild(paray)
             document.getElementById("list").appendChild(para)
 
 
         }
         
 
-        function clears(name) {
-            var i;
-            if (name == '') {
-                //document.getElementById("list").removeChild(getElementById(name));
-            } else {
-                document.getElementById(name).remove()
+        function clears() {
+           
+                document.getElementById("list").removeChild(document.getElementById("del"))
 
-            }
+            
 
 
         }
@@ -279,6 +323,8 @@ pub const mm: &str = r#"
          
             
             external.invoke("loadsim||"+filename);
+            external.invoke('run');
+
         }
         function notext(){
             // same as upbutcl()
